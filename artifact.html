@@ -1,0 +1,1020 @@
+<title>Refund Agent</title>
+<style>
+  :root {
+    --bg: #fbfaf6;
+    --surface: #f1eee6;
+    --surface-2: #e9e4d6;
+    --ink: #1e211d;
+    --ink-soft: #5c6058;
+    --ink-faint: #8b8d84;
+    --border: #dad5c5;
+    --accent: #1f6f63;
+    --accent-soft: #e3efec;
+    --warn: #a8660c;
+    --warn-soft: #f6ecd8;
+    --warn-border: #e4d3ac;
+    --ok: #1f6f63;
+    --bad: #ab3b2a;
+    --bad-soft: #f8e9e4;
+    --code-key: #6b6f63;
+    --shadow: 0 1px 2px rgba(30, 33, 29, 0.05);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14170f;
+      --surface: #1c2016;
+      --surface-2: #262b1d;
+      --ink: #ece8db;
+      --ink-soft: #a9ac9c;
+      --ink-faint: #767a6a;
+      --border: #333825;
+      --accent: #5fc3ae;
+      --accent-soft: #1c2c26;
+      --warn: #e2ab5c;
+      --warn-soft: #2c2413;
+      --warn-border: #4a3c1f;
+      --ok: #5fc3ae;
+      --bad: #e08469;
+      --bad-soft: #2c1c17;
+      --code-key: #9aa08c;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14170f;
+    --surface: #1c2016;
+    --surface-2: #262b1d;
+    --ink: #ece8db;
+    --ink-soft: #a9ac9c;
+    --ink-faint: #767a6a;
+    --border: #333825;
+    --accent: #5fc3ae;
+    --accent-soft: #1c2c26;
+    --warn: #e2ab5c;
+    --warn-soft: #2c2413;
+    --warn-border: #4a3c1f;
+    --ok: #5fc3ae;
+    --bad: #e08469;
+    --bad-soft: #2c1c17;
+    --code-key: #9aa08c;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent-soft); color: var(--ink); }
+  a { color: var(--accent); }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .page { max-width: 780px; margin: 0 auto; padding: 4.5rem 1.5rem 6rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .eyebrow::before { content: ""; width: 22px; height: 1px; background: var(--accent); display: inline-block; }
+
+  h1.headline {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.9rem, 4.4vw, 2.5rem);
+    line-height: 1.15;
+    margin: 0.9rem 0 0.3rem;
+    text-wrap: balance;
+  }
+
+  .dek {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin: 0 0 1.6rem;
+    max-width: 38rem;
+    text-wrap: balance;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 2.6rem;
+  }
+  .pill {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.28rem 0.75rem;
+  }
+
+  p { margin: 1rem 0; }
+  .lede { font-size: 1.03rem; }
+
+  h2.section {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.4rem;
+    margin: 3.4rem 0 0.9rem;
+    padding-top: 2.4rem;
+    border-top: 1px solid var(--border);
+    text-wrap: balance;
+  }
+  h2.section:first-of-type { border-top: none; padding-top: 0; margin-top: 2.6rem; }
+
+  h3.file-title {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 1.8rem 0 0.4rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  h3.file-title .role {
+    font-family: var(--sans);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  /* code blocks */
+  .code { margin: 0.6rem 0 1.5rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); }
+  .code-head {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0.9rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  .code pre { margin: 0; padding: 1rem 1.1rem; background: var(--surface-2); overflow-x: auto; }
+  .code code { font-family: var(--mono); font-size: 0.82rem; line-height: 1.6; color: var(--ink); white-space: pre; }
+  .code .cm { color: var(--code-key); font-style: italic; }
+  code.inline {
+    font-family: var(--mono); font-size: 0.86em; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 3px; padding: 0.08em 0.35em;
+  }
+
+  /* terminal transcripts */
+  .terminals { display: grid; grid-template-columns: 1fr; gap: 1.2rem; margin: 1.4rem 0 2rem; }
+  @media (min-width: 680px) { .terminals { grid-template-columns: 1fr 1fr; } }
+  .term {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+  .term-head {
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    padding: 0.6rem 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .term.ok .term-head { background: var(--accent-soft); color: var(--ok); }
+  .term.bad .term-head { background: var(--bad-soft); color: var(--bad); }
+  .term-head .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: 0 0 auto; }
+  .term pre {
+    margin: 0; padding: 0.9rem 1rem; background: var(--surface-2); overflow-x: auto;
+    font-family: var(--mono); font-size: 0.72rem; line-height: 1.65; color: var(--ink-soft); flex: 1;
+  }
+  .term pre .l { display: block; }
+  .term .result {
+    font-family: var(--mono); font-size: 0.82rem; font-weight: 600;
+    padding: 0.8rem 1rem; border-top: 1px solid var(--border);
+  }
+  .term.ok .result { color: var(--ok); background: var(--accent-soft); }
+  .term.bad .result { color: var(--bad); background: var(--bad-soft); }
+
+  /* supporting files (details) */
+  details.supp {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 0.7rem 0;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  details.supp summary {
+    cursor: pointer;
+    padding: 0.7rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    list-style: none;
+  }
+  details.supp summary::-webkit-details-marker { display: none; }
+  details.supp summary::after {
+    content: "expand";
+    font-family: var(--sans);
+    font-style: italic;
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+  }
+  details.supp[open] summary::after { content: "collapse"; }
+  details.supp .role { font-family: var(--sans); font-style: italic; font-weight: 400; color: var(--ink-soft); font-size: 0.8rem; }
+  details.supp .code { margin: 0; border: none; border-radius: 0; border-top: 1px solid var(--border); }
+  details.supp .code-head { display: none; }
+
+  /* run table */
+  table.run { width: 100%; border-collapse: collapse; margin: 1rem 0 2rem; font-size: 0.9rem; }
+  table.run th, table.run td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); }
+  table.run th { font-family: var(--sans); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); font-weight: 600; }
+  table.run td:first-child code { font-family: var(--mono); font-size: 0.82rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 3px; padding: 0.15em 0.45em; }
+  table.run td:last-child { color: var(--ink-soft); }
+
+  .layout-tree {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    margin: 1rem 0 2rem;
+  }
+  .layout-tree .fn { color: var(--ink); }
+
+  .end-mark { font-family: var(--mono); color: var(--accent); font-size: 0.9rem; margin-top: 3rem; }
+
+  @media (max-width: 520px) {
+    .page { padding: 3rem 1.1rem 4rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="page">
+
+  <div class="eyebrow">Field notes · companion code</div>
+  <h1 class="headline">Refund Agent</h1>
+  <p class="dek">The actual TypeScript behind <em>The Double Refund</em> — durable state, idempotency keys, per-tool retry policy, human-in-the-loop approval, execution budgets, and saga compensation, wired up and run against mocked services.</p>
+  <div class="meta">
+    <span class="pill">Node.js + TypeScript</span>
+    <span class="pill">no API keys required</span>
+    <span class="pill">runs with <code class="inline">npm install &amp;&amp; npm run demo:happy</code></span>
+  </div>
+
+  <p class="lede">This isn't pseudocode. Every scenario below was actually executed — the terminal output is copied verbatim from running it, not written to look plausible. The project has no real dependencies beyond <code class="inline">tsx</code> and <code class="inline">typescript</code>; a fake CRM, payment gateway, and email service stand in for the real thing so the whole thing runs offline.</p>
+
+  <h2 class="section" id="proof">The bug, reproduced and fixed</h2>
+  <p>The mock payment gateway takes 3 seconds to process a refund on its first attempt; the tool's timeout is 2 seconds. So the caller gives up and retries — while the original request keeps running on the "server" and completes anyway. That's the exact ambiguity from the article, and it's deterministic: run it as many times as you like, same result.</p>
+
+  <div class="terminals">
+    <div class="term ok">
+      <div class="term-head"><span class="dot"></span>npm run demo:timeout — idempotency ON</div>
+      <pre><code><span class="l">issueRefund attempt 1  status: error   timed out after 2000ms</span>
+<span class="l">issueRefund attempt 2  status: ok      durationMs: 714</span>
+<span class="l">sendEmail   attempt 1  status: ok      durationMs: 81</span>
+<span class="l">workflow_completed</span>
+<span class="l"></span>
+<span class="l">--- payment gateway ledger ---</span>
+<span class="l">wf_cbf03a13:refund:o_8921   ₹4500</span>
+<span class="l"></span>
+<span class="l">charges recorded: 1</span>
+<span class="l">total charged: ₹4500</span></code></pre>
+      <div class="result">✅ exactly one charge, despite the retry.</div>
+    </div>
+
+    <div class="term bad">
+      <div class="term-head"><span class="dot"></span>npm run demo:timeout:unsafe — idempotency OFF</div>
+      <pre><code><span class="l">issueRefund attempt 1  status: error   timed out after 2000ms</span>
+<span class="l">issueRefund attempt 2  status: ok      durationMs: 201</span>
+<span class="l">sendEmail   attempt 1  status: ok      durationMs: 81</span>
+<span class="l">workflow_completed</span>
+<span class="l"></span>
+<span class="l">--- payment gateway ledger ---</span>
+<span class="l">unsafe:3d09ee09-…   ₹4500</span>
+<span class="l">unsafe:fbc73996-…   ₹4500</span>
+<span class="l"></span>
+<span class="l">charges recorded: 2</span>
+<span class="l">total charged: ₹9000</span></code></pre>
+      <div class="result">❌ customer was charged twice.</div>
+    </div>
+  </div>
+
+  <p>The only difference between the two runs is one line in <code class="inline">tools.ts</code> — whether the idempotency key is derived from the workflow or minted fresh on every attempt. Same retry logic, same flaky gateway, same timeout. The model was never involved in either outcome.</p>
+
+  <h2 class="section" id="core">The core</h2>
+  <p>Seven files carry the whole architecture. Everything else — the mock services, the CLIs, the demo scripts — is plumbing around these.</p>
+
+  <h3 class="file-title">types.ts <span class="role">the state machine's vocabulary</span></h3>
+  <div class="code"><div class="code-head"><span>src/types.ts</span><span>TypeScript</span></div><pre><code>export type WorkflowStatus =
+  | "started"
+  | "customer_identified"
+  | "order_found"
+  | "eligibility_checked"
+  | "awaiting_approval"
+  | "refund_submitted"
+  | "refund_confirmed"
+  | "notified"
+  | "failed"
+  | "denied";
+
+export interface WorkflowContext {
+  customerId?: string;
+  orderId?: string;
+  customerName?: string;
+  customerEmail?: string;
+  refundAmount?: number;
+  chargedAt?: string;
+  replay?: boolean;
+  reason?: string;
+}
+
+export interface WorkflowRecord {
+  id: string;
+  status: WorkflowStatus;
+  context: WorkflowContext;
+  stepCount: number;
+  createdAt: string;
+  updatedAt: string;
+}</code></pre></div>
+
+  <h3 class="file-title">store.ts <span class="role">durable state — stands in for Postgres</span></h3>
+  <div class="code"><div class="code-head"><span>src/store.ts</span><span>TypeScript</span></div><pre><code>import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import type { WorkflowRecord, WorkflowContext } from "./types.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, "..", "data");
+const DATA_FILE = join(DATA_DIR, "workflows.json");
+
+type Table = Record&lt;string, WorkflowRecord&gt;;
+
+function readAll(): Table {
+  if (!existsSync(DATA_FILE)) return {};
+  return JSON.parse(readFileSync(DATA_FILE, "utf-8")) as Table;
+}
+
+function writeAll(data: Table): void {
+  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+  writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+}
+
+<span class="cm">// A JSON file standing in for `workflows` — same job Postgres does in the
+// article: state a fresh process (or a fresh `npm run approve` invocation)
+// can read back without needing anything from the process that wrote it.</span>
+export const store = {
+  async create(id: string, context: WorkflowContext): Promise&lt;WorkflowRecord&gt; {
+    const all = readAll();
+    const now = new Date().toISOString();
+    const record: WorkflowRecord = { id, status: "started", context, stepCount: 0, createdAt: now, updatedAt: now };
+    all[id] = record;
+    writeAll(all);
+    return record;
+  },
+
+  async get(id: string): Promise&lt;WorkflowRecord | undefined&gt; {
+    return readAll()[id];
+  },
+
+  async update(id: string, patch: Partial&lt;Pick&lt;WorkflowRecord, "status" | "context"&gt;&gt;): Promise&lt;WorkflowRecord&gt; {
+    const all = readAll();
+    const existing = all[id];
+    if (!existing) throw new Error(`unknown workflow ${id}`);
+    const updated: WorkflowRecord = {
+      ...existing,
+      ...patch,
+      context: { ...existing.context, ...(patch.context ?? {}) },
+      updatedAt: new Date().toISOString(),
+    };
+    all[id] = updated;
+    writeAll(all);
+    return updated;
+  },
+
+  async incrementStep(id: string): Promise&lt;WorkflowRecord&gt; {
+    const all = readAll();
+    const existing = all[id];
+    if (!existing) throw new Error(`unknown workflow ${id}`);
+    existing.stepCount += 1;
+    existing.updatedAt = new Date().toISOString();
+    writeAll(all);
+    return existing;
+  },
+
+  async list(): Promise&lt;WorkflowRecord[]&gt; {
+    return Object.values(readAll());
+  },
+};</code></pre></div>
+
+  <h3 class="file-title">policies.ts <span class="role">timeout &amp; retry, per tool</span></h3>
+  <div class="code"><div class="code-head"><span>src/policies.ts</span><span>TypeScript</span></div><pre><code>export interface ToolPolicy {
+  timeoutMs: number;
+  retry: { max: number; backoffMs: number } | null;
+}
+
+<span class="cm">// The policy belongs to the tool, not the caller — a lookup and a financial
+// mutation should never share a retry policy just because they're both "a
+// tool call."</span>
+export const toolPolicies: Record&lt;string, ToolPolicy&gt; = {
+  findCustomer: { timeoutMs: 3000, retry: { max: 3, backoffMs: 200 } },
+  findOrder: { timeoutMs: 3000, retry: { max: 3, backoffMs: 200 } },
+  checkEligibility: { timeoutMs: 2000, retry: { max: 2, backoffMs: 200 } },
+  issueRefund: { timeoutMs: 2000, retry: { max: 2, backoffMs: 300 } },
+  sendEmail: { timeoutMs: 3000, retry: { max: 3, backoffMs: 200 } },
+};
+
+export const defaultPolicy: ToolPolicy = { timeoutMs: 5000, retry: null };</code></pre></div>
+
+  <h3 class="file-title">toolRuntime.ts <span class="role">callTool() — every tool call routes through here</span></h3>
+  <div class="code"><div class="code-head"><span>src/toolRuntime.ts</span><span>TypeScript</span></div><pre><code>import { toolPolicies, defaultPolicy } from "./policies.js";
+import { log } from "./logger.js";
+
+export class ToolTimeoutError extends Error {}
+
+function withTimeout&lt;T&gt;(promise: Promise&lt;T&gt;, ms: number): Promise&lt;T&gt; {
+  if (ms &lt;= 0) return promise;
+  return new Promise((resolve, reject) =&gt; {
+    const timer = setTimeout(() =&gt; reject(new ToolTimeoutError(`timed out after ${ms}ms`)), ms);
+    promise.then(
+      (value) =&gt; { clearTimeout(timer); resolve(value); },
+      (err) =&gt; { clearTimeout(timer); reject(err); }
+    );
+  });
+}
+
+function sleep(ms: number): Promise&lt;void&gt; {
+  return new Promise((resolve) =&gt; setTimeout(resolve, ms));
+}
+
+export async function callTool&lt;T&gt;(workflowId: string, toolName: string, fn: () =&gt; Promise&lt;T&gt;): Promise&lt;T&gt; {
+  const policy = toolPolicies[toolName] ?? defaultPolicy;
+  const maxAttempts = (policy.retry?.max ?? 0) + 1;
+  let lastErr: unknown;
+
+  for (let attempt = 1; attempt &lt;= maxAttempts; attempt++) {
+    const start = Date.now();
+    try {
+      <span class="cm">// withTimeout races the caller's patience against fn(); it does NOT
+      // cancel fn() itself. A real HTTP client can't un-send a request
+      // either — that's exactly the ambiguity this whole demo is about.</span>
+      const result = await withTimeout(fn(), policy.timeoutMs);
+      log("tool_call", { workflowId, toolName, attempt, status: "ok", durationMs: Date.now() - start });
+      return result;
+    } catch (err) {
+      lastErr = err;
+      log("tool_call", { workflowId, toolName, attempt, status: "error", durationMs: Date.now() - start, error: String(err) });
+      if (attempt &lt; maxAttempts &amp;&amp; policy.retry) {
+        await sleep(policy.retry.backoffMs * attempt);
+        continue;
+      }
+      break;
+    }
+  }
+  throw lastErr;
+}</code></pre></div>
+
+  <h3 class="file-title">tools.ts <span class="role">where the idempotency key actually gets decided</span></h3>
+  <div class="code"><div class="code-head"><span>src/tools.ts</span><span>TypeScript</span></div><pre><code>import { randomUUID } from "node:crypto";
+import { callTool } from "./toolRuntime.js";
+import * as crm from "./services/crm.js";
+import * as payment from "./services/payment.js";
+import * as email from "./services/email.js";
+
+export async function findCustomer(workflowId: string, customerId: string) {
+  return callTool(workflowId, "findCustomer", () =&gt; crm.lookupCustomer(customerId));
+}
+
+export async function findOrder(workflowId: string, orderId: string) {
+  return callTool(workflowId, "findOrder", () =&gt; crm.lookupOrder(orderId));
+}
+
+export async function checkEligibility(workflowId: string, orderId: string) {
+  return callTool(workflowId, "checkEligibility", () =&gt; crm.checkEligibility(orderId));
+}
+
+export async function issueRefund(workflowId: string, orderId: string, amount: number) {
+  const idempotent = process.env.IDEMPOTENT !== "false";
+
+  return callTool(workflowId, "issueRefund", () =&gt; {
+    <span class="cm">// Computed INSIDE the retried closure on purpose: the safe key is
+    // deterministic (same workflow, same step → same key on every attempt),
+    // so a retry is recognized as "the same request" by the gateway. Set
+    // IDEMPOTENT=false to reproduce the naive version instead — a fresh
+    // random key minted on every single attempt, indistinguishable from a
+    // brand new refund as far as the gateway is concerned.</span>
+    const idempotencyKey = idempotent ? `${workflowId}:refund:${orderId}` : `unsafe:${randomUUID()}`;
+    return payment.submitRefund(orderId, amount, idempotencyKey);
+  });
+}
+
+export async function sendEmail(workflowId: string, to: string, orderId: string) {
+  return callTool(workflowId, "sendEmail", () =&gt;
+    email.sendEmail(to, "Your refund has been processed", `Order ${orderId} has been refunded.`)
+  );
+}</code></pre></div>
+  <p>This is the bug from the demo above, in its natural habitat: <code class="inline">callTool</code> retries by calling the same closure again, so the key generation has to live <em>inside</em> it — computing the key once outside the closure would have silently made even the "unsafe" mode safe on retries. This was a real bug caught while building this demo, not a hypothetical.</p>
+
+  <h3 class="file-title">toolRegistry.ts <span class="role">declarative metadata — added after a first pass didn't match this section's own claim</span></h3>
+  <p style="margin-top:-0.4rem;">The first version of this project had the approval check hardcoded into <code class="inline">workflow.ts</code>'s switch statement, only for the refund step. That technically worked, but it quietly contradicted the next file's own comment: nothing about "the model proposes, this decides" was actually generic — it was one <code class="inline">if</code> written for one tool. This registry is the fix: every tool declares its own <code class="inline">requiresApproval</code>, and the gate reads it instead of assuming.</p>
+  <div class="code"><div class="code-head"><span>src/toolRegistry.ts</span><span>TypeScript</span></div><pre><code>import * as tools from "./tools.js";
+
+export interface ToolDefinition {
+  name: string;
+  sideEffect: "read" | "financial" | "notification";
+  requiresApproval: boolean;
+  execute: (workflowId: string, args: Record&lt;string, unknown&gt;) =&gt; Promise&lt;unknown&gt;;
+}
+
+<span class="cm">// The declarative contract behind "the model proposes, a deterministic
+// layer authorizes." Nothing reads this and calls the model — it's the
+// other way around: proposeAction() (authorize.ts) looks a tool up here
+// BEFORE running it, and requiresApproval is what actually gates the
+// side effect. Add a new financial tool here and it's gated for free;
+// forget to mark it, and it isn't — which is the honest failure mode of
+// any allowlist, not something special to agents.</span>
+export const toolRegistry: Record&lt;string, ToolDefinition&gt; = {
+  findCustomer: {
+    name: "findCustomer",
+    sideEffect: "read",
+    requiresApproval: false,
+    execute: (workflowId, args) =&gt; tools.findCustomer(workflowId, args.customerId as string),
+  },
+  findOrder: {
+    name: "findOrder",
+    sideEffect: "read",
+    requiresApproval: false,
+    execute: (workflowId, args) =&gt; tools.findOrder(workflowId, args.orderId as string),
+  },
+  checkEligibility: {
+    name: "checkEligibility",
+    sideEffect: "read",
+    requiresApproval: false,
+    execute: (workflowId, args) =&gt; tools.checkEligibility(workflowId, args.orderId as string),
+  },
+  issueRefund: {
+    name: "issueRefund",
+    sideEffect: "financial",
+    requiresApproval: true,
+    execute: (workflowId, args) =&gt; tools.issueRefund(workflowId, args.orderId as string, args.amount as number),
+  },
+  sendEmail: {
+    name: "sendEmail",
+    sideEffect: "notification",
+    requiresApproval: false,
+    execute: (workflowId, args) =&gt; tools.sendEmail(workflowId, args.to as string, args.orderId as string),
+  },
+};</code></pre></div>
+
+  <h3 class="file-title">authorize.ts <span class="role">the only function allowed to run a tool</span></h3>
+  <div class="code"><div class="code-head"><span>src/authorize.ts</span><span>TypeScript</span></div><pre><code>import { store } from "./store.js";
+import { log } from "./logger.js";
+import { toolRegistry } from "./toolRegistry.js";
+import type { ProposedAction } from "./types.js";
+
+export type ProposalOutcome = { status: "executed"; result: unknown } | { status: "paused_for_approval" };
+
+<span class="cm">// This is the one function allowed to run a tool. The model — or, here, the
+// workflow's own state machine, standing in for it — never calls
+// tools.issueRefund() directly; it can only propose { tool, args }, and
+// whether that actually runs depends on registry metadata this function
+// owns, not on anything the caller decided.</span>
+export async function proposeAction(workflowId: string, action: ProposedAction): Promise&lt;ProposalOutcome&gt; {
+  const tool = toolRegistry[action.tool];
+  if (!tool) throw new Error(`propose: unknown tool "${action.tool}"`);
+
+  if (tool.requiresApproval) {
+    await store.update(workflowId, { status: "awaiting_approval", context: { pendingAction: action } });
+    log("approval_requested", { workflowId, action });
+    console.log(`\n⏸  Workflow ${workflowId} is paused for approval: ${action.tool}(${JSON.stringify(action.args)})`);
+    console.log(`   Approve it from another process:`);
+    console.log(`     npm run approve -- ${workflowId} approved\n`);
+    return { status: "paused_for_approval" };
+  }
+
+  const result = await tool.execute(workflowId, action.args);
+  return { status: "executed", result };
+}
+
+<span class="cm">// Called once a human has approved a previously-paused action — runs the
+// exact { tool, args } that was proposed, still through the registry, so
+// there's no second code path that could execute something different from
+// what was actually shown to the approver.</span>
+export async function executeApprovedAction(workflowId: string, action: ProposedAction): Promise&lt;unknown&gt; {
+  const tool = toolRegistry[action.tool];
+  if (!tool) throw new Error(`execute: unknown tool "${action.tool}"`);
+  return tool.execute(workflowId, action.args);
+}</code></pre></div>
+
+  <h3 class="file-title">workflow.ts <span class="role">the orchestrator — every step proposes, none of them execute directly</span></h3>
+  <div class="code"><div class="code-head"><span>src/workflow.ts</span><span>TypeScript</span></div><pre><code>import { randomUUID } from "node:crypto";
+import { store } from "./store.js";
+import { log } from "./logger.js";
+import { proposeAction, executeApprovedAction } from "./authorize.js";
+import type { RefundRecord } from "./services/payment.js";
+import type { Customer, Order } from "./services/crm.js";
+
+export const WORKFLOW_BUDGET = { maxSteps: 15 };
+
+export async function startRefundWorkflow(customerId: string, orderId: string): Promise&lt;string&gt; {
+  const workflowId = `wf_${randomUUID().slice(0, 8)}`;
+  await store.create(workflowId, { customerId, orderId });
+  log("workflow_started", { workflowId, customerId, orderId });
+  await advance(workflowId);
+  return workflowId;
+}
+
+export async function resumeRefundWorkflow(workflowId: string): Promise&lt;void&gt; {
+  log("workflow_resumed", { workflowId });
+  await advance(workflowId);
+}
+
+async function advance(workflowId: string): Promise&lt;void&gt; {
+  let workflow = await store.get(workflowId);
+  if (!workflow) throw new Error(`unknown workflow ${workflowId}`);
+
+  while (true) {
+    if (workflow.stepCount &gt;= WORKFLOW_BUDGET.maxSteps) {
+      await store.update(workflowId, { status: "failed", context: { ...workflow.context, reason: "step budget exceeded" } });
+      log("workflow_escalated", { workflowId, reason: "step budget exceeded", stepCount: workflow.stepCount });
+      return;
+    }
+
+    <span class="cm">// Every case calls proposeAction() instead of a tool function directly —
+    // even for reads, which the registry marks requiresApproval: false and
+    // so execute immediately. There is exactly ONE path by which any tool
+    // in this system gets invoked, and it's the one that checks the
+    // registry first.</span>
+    switch (workflow.status) {
+      case "started": {
+        const outcome = await proposeAction(workflowId, { tool: "findCustomer", args: { customerId: workflow.context.customerId } });
+        const customer = (outcome as { status: "executed"; result: unknown }).result as Customer;
+        await store.update(workflowId, {
+          status: "customer_identified",
+          context: { customerName: customer.name, customerEmail: customer.email },
+        });
+        break;
+      }
+
+      case "customer_identified": {
+        const outcome = await proposeAction(workflowId, { tool: "findOrder", args: { orderId: workflow.context.orderId } });
+        const order = (outcome as { status: "executed"; result: unknown }).result as Order;
+        await store.update(workflowId, { status: "order_found", context: { refundAmount: order.amount } });
+        break;
+      }
+
+      case "order_found": {
+        const outcome = await proposeAction(workflowId, { tool: "checkEligibility", args: { orderId: workflow.context.orderId } });
+        const eligible = (outcome as { status: "executed"; result: unknown }).result as boolean;
+        if (!eligible) {
+          await store.update(workflowId, { status: "failed", context: { reason: "not eligible" } });
+          return;
+        }
+        await store.update(workflowId, { status: "eligibility_checked" });
+        break;
+      }
+
+      case "eligibility_checked": {
+        const outcome = await proposeAction(workflowId, {
+          tool: "issueRefund",
+          args: { orderId: workflow.context.orderId, amount: workflow.context.refundAmount },
+        });
+        if (outcome.status === "paused_for_approval") return; <span class="cm">// nothing left running until a human resumes it</span>
+        break;
+      }
+
+      case "refund_submitted": {
+        <span class="cm">// A human approved workflow.context.pendingAction earlier; run exactly
+        // that, through the same registry, rather than trusting whatever's
+        // currently sitting in context.orderId/refundAmount.</span>
+        const pending = workflow.context.pendingAction;
+        if (!pending) throw new Error(`workflow ${workflowId} reached refund_submitted with no pendingAction on record`);
+        const result = (await executeApprovedAction(workflowId, pending)) as RefundRecord & { replay: boolean };
+        await store.update(workflowId, {
+          status: "refund_confirmed",
+          context: { chargedAt: result.chargedAt, replay: result.replay, pendingAction: undefined },
+        });
+        break;
+      }
+
+      case "refund_confirmed": {
+        await proposeAction(workflowId, { tool: "sendEmail", args: { to: workflow.context.customerEmail, orderId: workflow.context.orderId } });
+        await store.update(workflowId, { status: "notified" });
+        break;
+      }
+
+      case "notified":
+        log("workflow_completed", { workflowId });
+        return;
+
+      case "awaiting_approval":
+        log("workflow_waiting", { workflowId });
+        return;
+
+      case "failed":
+      case "denied":
+        log("workflow_terminal", { workflowId, status: workflow.status });
+        return;
+    }
+
+    await store.incrementStep(workflowId);
+    workflow = (await store.get(workflowId))!;
+  }
+}</code></pre></div>
+  <p>This refactor didn't change any of the demo output above — same ledger, same charge counts, same budget behavior. It changed what backs the claim: <code class="inline">requiresApproval</code> now lives on the tool, not in a switch-case someone has to remember to gate correctly the next time a financial tool gets added.</p>
+
+  <h2 class="section" id="services">Mock services</h2>
+  <p>These stand in for the CRM, payment gateway, and email provider a real deployment would call. <code class="inline">payment.ts</code> is the one worth reading closely — it's what makes the timeout race above reproducible on demand.</p>
+
+  <h3 class="file-title">payment.ts <span class="role">the fake gateway that reproduces the incident</span></h3>
+  <div class="code"><div class="code-head"><span>src/services/payment.ts</span><span>TypeScript</span></div><pre><code>export interface RefundRecord {
+  idempotencyKey: string;
+  orderId: string;
+  amount: number;
+  chargedAt: string;
+}
+
+let processedRefunds: RefundRecord[] = [];
+let seenKeys = new Set&lt;string&gt;();
+let callCount = 0;
+let simulateTimeoutOnFirstCall = false;
+
+function delay(ms: number): Promise&lt;void&gt; {
+  return new Promise((r) =&gt; setTimeout(r, ms));
+}
+
+export function configurePaymentGateway(opts: { simulateTimeoutOnFirstCall: boolean }): void {
+  simulateTimeoutOnFirstCall = opts.simulateTimeoutOnFirstCall;
+  processedRefunds = [];
+  seenKeys = new Set();
+  callCount = 0;
+}
+
+export function getLedger(): RefundRecord[] {
+  return processedRefunds.slice();
+}
+
+<span class="cm">/**
+ * Stands in for a real payment provider. Real gateways reserve the
+ * idempotency key the moment a request arrives, then dedupe any later
+ * request carrying the same key — the client's job is only to send the
+ * SAME key on a retry. This mock enforces exactly that contract; see
+ * tools.ts for the part that can get it wrong.
+ */</span>
+export async function submitRefund(
+  orderId: string,
+  amount: number,
+  idempotencyKey: string
+): Promise&lt;RefundRecord &amp; { replay: boolean }&gt; {
+  callCount += 1;
+  const isFirstCall = callCount === 1;
+
+  if (seenKeys.has(idempotencyKey)) {
+    <span class="cm">// A request with this key is already in flight or done. Wait for it
+    // and hand back its result instead of doing the side effect again.</span>
+    while (!processedRefunds.find((r) =&gt; r.idempotencyKey === idempotencyKey)) {
+      await delay(50);
+    }
+    const existing = processedRefunds.find((r) =&gt; r.idempotencyKey === idempotencyKey)!;
+    return { ...existing, replay: true };
+  }
+
+  seenKeys.add(idempotencyKey); <span class="cm">// reserved up front, like a real gateway would</span>
+
+  <span class="cm">// Simulate the first attempt being slow enough that the CLIENT gives up
+  // and times out — while the charge keeps processing on the server and
+  // completes anyway. This is the exact ambiguity from the article.</span>
+  const processingMs = simulateTimeoutOnFirstCall &amp;&amp; isFirstCall ? 3000 : 200;
+  await delay(processingMs);
+
+  const record: RefundRecord = { idempotencyKey, orderId, amount, chargedAt: new Date().toISOString() };
+  processedRefunds.push(record);
+  return { ...record, replay: false };
+}</code></pre></div>
+
+  <details class="supp">
+    <summary><span>src/services/crm.ts</span><span class="role">fake customer + order lookup</span></summary>
+    <div class="code"><pre><code>interface Customer { id: string; name: string; email: string; }
+interface Order { id: string; customerId: string; amount: number; eligibleForRefund: boolean; }
+
+const customers: Record&lt;string, Customer&gt; = {
+  c_1002: { id: "c_1002", name: "Meera Iyer", email: "meera@example.com" },
+};
+const orders: Record&lt;string, Order&gt; = {
+  o_8921: { id: "o_8921", customerId: "c_1002", amount: 4500, eligibleForRefund: true },
+};
+
+function delay(ms: number): Promise&lt;void&gt; { return new Promise((r) =&gt; setTimeout(r, ms)); }
+
+export async function lookupCustomer(customerId: string): Promise&lt;Customer&gt; {
+  await delay(120 + Math.random() * 120);
+  const customer = customers[customerId];
+  if (!customer) throw new Error(`customer ${customerId} not found`);
+  return customer;
+}
+
+export async function lookupOrder(orderId: string): Promise&lt;Order&gt; {
+  await delay(120 + Math.random() * 120);
+  const order = orders[orderId];
+  if (!order) throw new Error(`order ${orderId} not found`);
+  return order;
+}
+
+export async function checkEligibility(orderId: string): Promise&lt;boolean&gt; {
+  await delay(80);
+  const order = orders[orderId];
+  if (!order) throw new Error(`order ${orderId} not found`);
+  return order.eligibleForRefund;
+}</code></pre></div>
+  </details>
+
+  <details class="supp">
+    <summary><span>src/services/email.ts</span><span class="role">fake email sender</span></summary>
+    <div class="code"><pre><code>export async function sendEmail(to: string, subject: string, body: string): Promise&lt;{ sent: true; to: string; subject: string }&gt; {
+  await new Promise((r) =&gt; setTimeout(r, 80));
+  return { sent: true, to, subject };
+}</code></pre></div>
+  </details>
+
+  <details class="supp">
+    <summary><span>src/services/inventory.ts + delivery.ts + sagaPayment.ts</span><span class="role">used only by the saga demo</span></summary>
+    <div class="code"><pre><code><span class="cm">// inventory.ts</span>
+const reserved = new Map&lt;string, number&gt;();
+
+export async function reserveInventory(sku: string, qty: number) {
+  await new Promise((r) =&gt; setTimeout(r, 100));
+  reserved.set(sku, (reserved.get(sku) ?? 0) + qty);
+  return { sku, qty, reserved: true };
+}
+
+export async function releaseInventory(sku: string, qty: number) {
+  await new Promise((r) =&gt; setTimeout(r, 100));
+  reserved.set(sku, Math.max(0, (reserved.get(sku) ?? 0) - qty));
+  return { sku, qty, released: true };
+}
+
+export function getReserved(sku: string): number {
+  return reserved.get(sku) ?? 0;
+}
+
+<span class="cm">// delivery.ts</span>
+export async function scheduleDelivery(orderId: string, opts: { fail?: boolean } = {}) {
+  await new Promise((r) =&gt; setTimeout(r, 100));
+  if (opts.fail) throw new Error("delivery partner unavailable");
+  return { orderId, scheduled: true };
+}
+
+export async function cancelDelivery(orderId: string) {
+  await new Promise((r) =&gt; setTimeout(r, 80));
+  return { orderId, cancelled: true };
+}
+
+<span class="cm">// sagaPayment.ts</span>
+export async function chargeCard(orderId: string, amount: number) {
+  await new Promise((r) =&gt; setTimeout(r, 120));
+  return { orderId, amount, charged: true };
+}
+
+export async function refundCharge(orderId: string, amount: number) {
+  await new Promise((r) =&gt; setTimeout(r, 120));
+  return { orderId, amount, refunded: true };
+}</code></pre></div>
+  </details>
+
+  <h2 class="section" id="entry-points">Entry points</h2>
+  <p>Each demo script drives the core above through one scenario. <code class="inline">demo-saga.ts</code> is the one exception — a separate order-fulfillment workflow (reserve inventory → charge card → schedule delivery) used only to demonstrate compensation.</p>
+
+  <details class="supp" open>
+    <summary><span>src/demo-saga.ts</span><span class="role">forces the last step to fail, unwinds the rest</span></summary>
+    <div class="code"><pre><code>import { randomUUID } from "node:crypto";
+import { callTool } from "./toolRuntime.js";
+import { reserveInventory, releaseInventory, getReserved } from "./services/inventory.js";
+import { chargeCard, refundCharge } from "./services/sagaPayment.js";
+import { scheduleDelivery, cancelDelivery } from "./services/delivery.js";
+
+const workflowId = `wf_${randomUUID().slice(0, 8)}`;
+const ctx = { orderId: "o_9110", sku: "SKU-COFFEE-01", qty: 2, amount: 1200 };
+
+interface SagaStep {
+  name: string;
+  run: () =&gt; Promise&lt;unknown&gt;;
+  compensate: () =&gt; Promise&lt;unknown&gt;;
+}
+
+const steps: SagaStep[] = [
+  { name: "reserve_inventory", run: () =&gt; reserveInventory(ctx.sku, ctx.qty), compensate: () =&gt; releaseInventory(ctx.sku, ctx.qty) },
+  { name: "charge_payment", run: () =&gt; chargeCard(ctx.orderId, ctx.amount), compensate: () =&gt; refundCharge(ctx.orderId, ctx.amount) },
+  { name: "schedule_delivery", run: () =&gt; scheduleDelivery(ctx.orderId, { fail: true }), compensate: () =&gt; cancelDelivery(ctx.orderId) },
+];
+
+const completed: SagaStep[] = [];
+try {
+  for (const step of steps) {
+    await callTool(workflowId, step.name, step.run);
+    completed.push(step);
+  }
+  console.log("✅ saga completed");
+} catch (err) {
+  console.log(`❌ step failed: ${String(err)}`);
+  for (const step of completed.reverse()) {
+    await callTool(workflowId, `compensate_${step.name}`, step.compensate);
+  }
+  console.log("✅ compensations complete");
+}</code></pre></div>
+    <p style="padding: 0 1rem 1rem; margin: 0; font-size: 0.85rem; color: var(--ink-soft);">Actual output: <code class="inline">reserve_inventory ok → charge_payment ok → schedule_delivery error → compensate_charge_payment ok → compensate_reserve_inventory ok</code> — inventory reserved returns to 0.</p>
+  </details>
+
+  <details class="supp">
+    <summary><span>src/demo-budget.ts</span><span class="role">shrinks the ceiling to prove it's enforced</span></summary>
+    <div class="code"><pre><code>import { startRefundWorkflow, WORKFLOW_BUDGET } from "./workflow.js";
+import { store } from "./store.js";
+import { configurePaymentGateway } from "./services/payment.js";
+
+configurePaymentGateway({ simulateTimeoutOnFirstCall: false });
+
+<span class="cm">// A real workflow needs 5-6 steps to finish. Set the budget artificially
+// low to prove the ceiling is actually enforced by code, not by the model
+// deciding to stop.</span>
+WORKFLOW_BUDGET.maxSteps = 2;
+
+const workflowId = await startRefundWorkflow("c_1002", "o_8921");
+const workflow = await store.get(workflowId);
+
+console.log(`final status: ${workflow!.status}`);
+console.log(`steps used: ${workflow!.stepCount} / budget: ${WORKFLOW_BUDGET.maxSteps}`);</code></pre></div>
+    <p style="padding: 0 1rem 1rem; margin: 0; font-size: 0.85rem; color: var(--ink-soft);">Actual output: stops after <code class="inline">order_found</code> — never even reaches the eligibility check — with <code class="inline">status: failed, reason: "step budget exceeded"</code>.</p>
+  </details>
+
+  <details class="supp">
+    <summary><span>src/demo-happy.ts + approve-cli.ts + status-cli.ts</span><span class="role">the two-process approval flow</span></summary>
+    <div class="code"><pre><code><span class="cm">// demo-happy.ts — starts a workflow and exits once it pauses for approval</span>
+import { startRefundWorkflow } from "./workflow.js";
+import { configurePaymentGateway } from "./services/payment.js";
+
+configurePaymentGateway({ simulateTimeoutOnFirstCall: false });
+const workflowId = await startRefundWorkflow("c_1002", "o_8921");
+console.log(`workflow id: ${workflowId}`);
+
+<span class="cm">// approve-cli.ts — a SEPARATE process, run whenever a human gets around to
+// it, that resumes a workflow purely from what's on disk</span>
+import { store } from "./store.js";
+import { resumeRefundWorkflow } from "./workflow.js";
+
+const [workflowId, decision] = process.argv.slice(2);
+const workflow = await store.get(workflowId);
+if (workflow?.status !== "awaiting_approval") process.exit(1);
+
+if (decision === "approved") {
+  await store.update(workflowId, { status: "refund_submitted" });
+  await resumeRefundWorkflow(workflowId);
+} else {
+  await store.update(workflowId, { status: "denied", context: { reason: "human_denied" } });
+}</code></pre></div>
+  </details>
+
+  <h2 class="section" id="run-it">Run it</h2>
+  <table class="run">
+    <thead><tr><th>Command</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm run demo:happy</code></td><td>Full workflow, pausing for approval; persists to disk and exits.</td></tr>
+      <tr><td><code>npm run approve -- &lt;id&gt; approved</code></td><td>Resumes that workflow from a separate process — the human-in-the-loop step.</td></tr>
+      <tr><td><code>npm run demo:timeout</code></td><td>Reproduces the timeout race with idempotency on. One charge.</td></tr>
+      <tr><td><code>npm run demo:timeout:unsafe</code></td><td>Same race with idempotency off. Two charges — the actual incident.</td></tr>
+      <tr><td><code>npm run demo:budget</code></td><td>Shrinks the step ceiling and shows the workflow stop itself.</td></tr>
+      <tr><td><code>npm run demo:saga</code></td><td>Forces a downstream failure and watches compensation unwind it.</td></tr>
+      <tr><td><code>npm run status</code></td><td>Lists every workflow and its current state.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="layout-tree">src/<br>&nbsp;&nbsp;<span class="fn">types.ts</span> · <span class="fn">store.ts</span> · <span class="fn">policies.ts</span> · <span class="fn">toolRuntime.ts</span><br>&nbsp;&nbsp;<span class="fn">tools.ts</span> · <span class="fn">toolRegistry.ts</span> · <span class="fn">authorize.ts</span> · <span class="fn">workflow.ts</span>&nbsp;&nbsp;<span style="opacity:.7">— the core, above</span><br>&nbsp;&nbsp;services/&nbsp;&nbsp;<span style="opacity:.7">— crm, payment, email, inventory, delivery, sagaPayment</span><br>&nbsp;&nbsp;demo-*.ts · approve-cli.ts · status-cli.ts&nbsp;&nbsp;<span style="opacity:.7">— entry points</span></div>
+
+  <p>Every run above was executed, not simulated for this page — including a real bug caught mid-build (the idempotency key was originally computed outside the retried closure, which would have made even the "unsafe" demo accidentally safe). That's really the point of writing runnable code for an architecture post: the failure modes are specific enough to reproduce on a laptop, which means the fixes are too.</p>
+
+  <div class="end-mark">— wf_8f72a91, resolved</div>
+
+</div>

@@ -1,0 +1,22 @@
+{
+  "name": "refund-agent-demo",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Runnable companion code for \"Your AI Agent Is a Distributed System\" — a refund agent with durable state, idempotency, retries, budgets, human-in-the-loop approval, and saga compensation.",
+  "scripts": {
+    "demo:happy": "tsx src/demo-happy.ts",
+    "demo:timeout": "tsx src/demo-timeout.ts",
+    "demo:timeout:unsafe": "IDEMPOTENT=false tsx src/demo-timeout.ts",
+    "demo:budget": "tsx src/demo-budget.ts",
+    "demo:saga": "tsx src/demo-saga.ts",
+    "approve": "tsx src/approve-cli.ts",
+    "status": "tsx src/status-cli.ts",
+    "clean": "rm -f data/workflows.json"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
